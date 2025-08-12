@@ -1,7 +1,7 @@
 {
   "name": "oelimg-rs",
   "version": "0.1.0",
-  "description": "WebAssembly image processing library with comprehensive filters for OutilsEnLigne.ca",
+  "description": "Package d'édition d'images pour outilsenligne.ca, en Rust avec WASM.",
   "main": "pkg/oelimg_rs.js",
   "types": "pkg/oelimg_rs.d.ts",
   "files": [
