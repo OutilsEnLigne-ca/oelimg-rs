@@ -1,0 +1,31 @@
+# Rust
+/target
+Cargo.lock
+**/*.rs.bk
+
+# WebAssembly
+/pkg
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.wasm
+*.js.map
+
+# Logs
+*.log
