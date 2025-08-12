@@ -2,8 +2,31 @@
   "name": "oelimg-rs",
   "version": "0.1.0",
   "description": "Package d'édition d'images pour outilsenligne.ca, en Rust avec WASM.",
+  "keywords": [
+    "image-processing",
+    "webassembly",
+    "wasm",
+    "rust",
+    "filters",
+    "nextjs",
+    "javascript"
+  ],
+  "homepage": "https://github.com/outilsenligne/oelimg-rs#readme",
+  "bugs": {
+    "url": "https://github.com/outilsenligne/oelimg-rs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/outilsenligne/oelimg-rs.git"
+  },
+  "license": "MIT",
+  "author": "OutilsEnLigne.ca Team",
+  "type": "commonjs",
   "main": "pkg/oelimg_rs.js",
   "types": "pkg/oelimg_rs.d.ts",
+  "directories": {
+    "example": "examples"
+  },
   "files": [
     "pkg/*"
   ],
@@ -17,26 +40,11 @@
     "clean": "rm -rf pkg/ target/",
     "publish:npm": "wasm-pack publish"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/outilsenligne/oelimg-rs"
-  },
-  "keywords": [
-    "image-processing",
-    "webassembly",
-    "wasm",
-    "rust",
-    "filters",
-    "nextjs",
-    "javascript"
-  ],
-  "author": "OutilsEnLigne.ca Team",
-  "license": "MIT",
-  "engines": {
-    "node": ">=16.0.0"
-  },
   "devDependencies": {
     "wasm-pack": "^0.12.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "publishConfig": {
     "access": "public"

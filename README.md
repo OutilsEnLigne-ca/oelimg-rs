@@ -1,6 +1,8 @@
 
 # oelimg-rs
 
+[lien NPM](https://www.npmjs.com/package/oelimg-rs)
+
 🦀 **Bibliothèque de traitement d’images WebAssembly haute performance** développée en Rust pour les applications web modernes.
 
 Développé par l’équipe d’[OutilsEnLigne.ca](https://outilsenligne.ca) pour offrir un traitement d’images rapide côté client avec une gamme complète de filtres et de transformations.
@@ -458,7 +460,8 @@ Toutes les opérations retournent `Result<T, JsValue>` avec des messages d’err
 
 ## 🤝 Contribuer
 
-Les contributions sont les bienvenues! Veuillez consulter notre [Guide de contribution](CONTRIBUTING.md) pour plus de détails.
+Pour l'instant , nous n'acceptons pas les contributions. Nous allons considérer cela vers les releases plus officielles.
+
 
 ### Configuration du développement
 
@@ -474,16 +477,15 @@ Les contributions sont les bienvenues! Veuillez consulter notre [Guide de contri
 
 ## 📄 Licence
 
-Ce projet est sous licence MIT – voir le fichier [LICENSE](LICENSE) pour les détails.
-
+Ce projet est sous licence MIT.
 
 ## 🏢 À propos d’OutilsEnLigne.ca
 
-Ce projet est maintenu par l’équipe d’[OutilsEnLigne.ca](https://www.outilsenligne.ca)!
+Ce projet est maintenu par [OutilsEnLigne.ca](https://www.outilsenligne.ca)!
 
 ### Autres projets
 
-Cette section est à remplir.
+Nous considérons 
 
 
 ## 🙏 Remerciements
@@ -496,13 +498,12 @@ Cette section est à remplir.
   - [`photon-rs`](https://github.com/silvia-odwyer/photon) – Filtres de traitement d’image
 
 
-## 📞 Soutien
+##  Soutien
 
-- 🐛 **T'as trouvé un bug** : [GitHub Issues](https://github.com/outilsenligne/oelimg-rs/issues)
-- 💬 **Questions** : [GitHub Discussions](https://github.com/outilsenligne/oelimg-rs/discussions)
+- 🐛 **Quelquechose qui ne marches pas?** : [GitHub Issues](https://github.com/outilsenligne/oelimg-rs/issues)
 - 📧 **Courriel** : support@outilsenligne.ca
 - 🌐 **Site web** : [outilsenligne.ca](https://outilsenligne.ca)
 
 ---
 
-**Fait avec ❤️ par l’équipe OutilsEnLigne.ca**
+**Fait avec ❤️ par  OutilsEnLigne.ca**
