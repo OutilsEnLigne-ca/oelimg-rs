@@ -1,6 +1,6 @@
 {
   "name": "oelimg-rs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Package d'édition d'images pour outilsenligne.ca, en Rust avec WASM.",
   "keywords": [
     "image-processing",
@@ -38,7 +38,7 @@
     "dev": "wasm-pack build --dev --target web --out-dir pkg --out-name oelimg_rs",
     "test": "wasm-pack test --headless --firefox",
     "clean": "rm -rf pkg/ target/",
-    "publish:npm": "wasm-pack publish"
+    "publish:npm": "cd pkg && npm publish"
   },
   "devDependencies": {
     "wasm-pack": "^0.12.1"
