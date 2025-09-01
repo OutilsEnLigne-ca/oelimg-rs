@@ -57,6 +57,49 @@ impl WasmImageProcessor {
         Ok(WasmImageProcessor { processor })
     }
 
+    /// Create processor from SVG bytes with specific dimensions
+    /// 
+    /// # Parameters
+    /// - `bytes`: SVG file content as bytes
+    /// - `width`: Target width (optional, will auto-calculate if not provided)
+    /// - `height`: Target height (optional, will auto-calculate if not provided)  
+    /// - `background_color`: Background color as RGBA array (optional, transparent by default)
+    /// 
+    /// # Example
+    /// ```javascript
+    /// // Auto-size based on SVG dimensions
+    /// const processor = WasmImageProcessor.from_svg_bytes(svgBytes);
+    /// 
+    /// // Specific size
+    /// const processor = WasmImageProcessor.from_svg_bytes(svgBytes, 400, 300);
+    /// 
+    /// // With white background  
+    /// const processor = WasmImageProcessor.from_svg_bytes(svgBytes, 400, 300, [255, 255, 255, 255]);
+    /// ```
+    #[wasm_bindgen]
+    pub fn from_svg_bytes(
+        bytes: &[u8], 
+        width: Option<u32>, 
+        height: Option<u32>,
+        background_color: Option<Vec<u8>>
+    ) -> Result<WasmImageProcessor, JsValue> {
+        console_error_panic_hook::set_once();
+        
+        let image = if let Some(bg_color) = background_color {
+            if bg_color.len() != 4 {
+                return Err(JsValue::from_str("Background color must be RGBA array with 4 elements"));
+            }
+            let bg_array: [u8; 4] = [bg_color[0], bg_color[1], bg_color[2], bg_color[3]];
+            utils::bytes_to_image_from_svg_with_background(bytes, width, height, bg_array)?
+        } else {
+            utils::bytes_to_image_from_svg(bytes, width, height)?
+        };
+        
+        let processor = ImageProcessor::from_image_buffer(&image);
+        
+        Ok(WasmImageProcessor { processor })
+    }
+
     #[wasm_bindgen(getter)]
     pub fn width(&self) -> u32 {
         self.processor.width()
@@ -266,6 +309,36 @@ pub fn load_image_from_bytes(bytes: &[u8]) -> Result<WasmImageProcessor, JsValue
     WasmImageProcessor::from_bytes(bytes)
 }
 
+/// Convert SVG to raster image and return as PNG bytes
+#[wasm_bindgen]
+pub fn convert_svg_to_png(
+    svg_bytes: &[u8],
+    width: Option<u32>,
+    height: Option<u32>,
+    background_color: Option<Vec<u8>>
+) -> Result<Vec<u8>, JsValue> {
+    let processor = WasmImageProcessor::from_svg_bytes(svg_bytes, width, height, background_color)?;
+    processor.to_png_bytes()
+}
+
+/// Convert SVG to raster image and return as WebP bytes
+#[wasm_bindgen]
+pub fn convert_svg_to_webp(
+    svg_bytes: &[u8],
+    width: Option<u32>,
+    height: Option<u32>,
+    background_color: Option<Vec<u8>>
+) -> Result<Vec<u8>, JsValue> {
+    let processor = WasmImageProcessor::from_svg_bytes(svg_bytes, width, height, background_color)?;
+    processor.to_webp_bytes()
+}
+
+/// Check if the provided bytes contain SVG content
+#[wasm_bindgen]
+pub fn is_svg_format(bytes: &[u8]) -> bool {
+    crate::utils::svg::is_svg_bytes(bytes)
+}
+
 #[wasm_bindgen]
 pub fn create_thumbnail(
     bytes: &[u8],
@@ -347,6 +420,7 @@ pub fn get_supported_formats() -> Vec<String> {
         "PNG".to_string(),
         "JPEG".to_string(), 
         "WebP".to_string(),
+        "SVG".to_string(),
     ]
 }
 

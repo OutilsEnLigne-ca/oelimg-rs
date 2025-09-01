@@ -1,14 +1,60 @@
 use wasm_bindgen::prelude::*;
 use image::{ImageBuffer, Rgba, ImageFormat};
 
+pub mod svg;
+
 pub type ImageData = ImageBuffer<Rgba<u8>, Vec<u8>>;
 
 // Utility functions for image format conversion and validation
 pub fn bytes_to_image(bytes: &[u8]) -> Result<ImageData, JsValue> {
+    // Check if it's an SVG file first
+    if svg::is_svg_bytes(bytes) {
+        return bytes_to_image_from_svg(bytes, None, None);
+    }
+    
+    // Otherwise, try to load as regular raster image
     let img = image::load_from_memory(bytes)
         .map_err(|e| JsValue::from_str(&format!("Failed to load image: {}", e)))?;
     
     Ok(img.to_rgba8())
+}
+
+// Specialized function for SVG to image conversion with size options
+pub fn bytes_to_image_from_svg(
+    bytes: &[u8], 
+    width: Option<u32>, 
+    height: Option<u32>
+) -> Result<ImageData, JsValue> {
+    use crate::core::svg_renderer::{SvgRenderer, SvgRenderOptions};
+    
+    let renderer = SvgRenderer::new();
+    let options = SvgRenderOptions {
+        width,
+        height,
+        ..Default::default()
+    };
+    
+    renderer.render_svg_to_image(bytes, options)
+}
+
+// Function to convert SVG with background color
+pub fn bytes_to_image_from_svg_with_background(
+    bytes: &[u8], 
+    width: Option<u32>, 
+    height: Option<u32>,
+    background_color: [u8; 4]
+) -> Result<ImageData, JsValue> {
+    use crate::core::svg_renderer::{SvgRenderer, SvgRenderOptions};
+    
+    let renderer = SvgRenderer::new();
+    let options = SvgRenderOptions {
+        width,
+        height,
+        background_color: Some(background_color),
+        ..Default::default()
+    };
+    
+    renderer.render_svg_to_image(bytes, options)
 }
 
 pub fn image_to_bytes(image: &ImageData, format: ImageFormat) -> Result<Vec<u8>, JsValue> {

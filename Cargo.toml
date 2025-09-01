@@ -1,6 +1,6 @@
 [package]
 name = "oelimg-rs"
-version = "0.1.0"
+version = "0.1.4"
 edition = "2024"
 authors = ["OutilsEnLigne.ca"]
 description = "Librairie d'édition d'images extensive pour WASM"
@@ -20,6 +20,12 @@ web-sys = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.6"
 console_error_panic_hook = "0.1"
+
+# SVG support dependencies
+resvg = { version = "0.37", default-features = false, features = ["text", "raster-images"] }
+usvg = { version = "0.37", features = ["text"] }
+fontdb = "0.16"
+tiny-skia = "0.11"
 
 # Tell `rustc` to optimize for small code size.
 [profile.release]

@@ -6,6 +6,12 @@ export interface ImageProcessorOptions {
   data: Uint8Array;
 }
 
+export interface SvgRenderOptions {
+  width?: number;
+  height?: number;
+  backgroundColor?: [number, number, number, number]; // RGBA
+}
+
 export interface FilterOptions {
   intensity?: number;
   strength?: number;
@@ -69,7 +75,8 @@ export enum ResizeAlgorithm {
 export enum ImageFormat {
   PNG = "png",
   JPEG = "jpeg",
-  WebP = "webp"
+  WebP = "webp",
+  SVG = "svg"
 }
 
 export type InstagramFilter = 
@@ -83,6 +90,12 @@ export class WasmImageProcessor {
   constructor(width: number, height: number, data: Uint8Array);
   
   static from_bytes(bytes: Uint8Array): WasmImageProcessor;
+  static from_svg_bytes(
+    bytes: Uint8Array, 
+    width?: number, 
+    height?: number, 
+    backgroundColor?: number[]
+  ): WasmImageProcessor;
   
   readonly width: number;
   readonly height: number;
@@ -130,6 +143,22 @@ export function apply_instagram_filter(
   bytes: Uint8Array, 
   filterName: InstagramFilter
 ): Uint8Array;
+
+// SVG utility functions
+export function convert_svg_to_png(
+  svgBytes: Uint8Array,
+  width?: number,
+  height?: number,
+  backgroundColor?: number[]
+): Uint8Array;
+export function convert_svg_to_webp(
+  svgBytes: Uint8Array,
+  width?: number,
+  height?: number,
+  backgroundColor?: number[]
+): Uint8Array;
+export function is_svg_format(bytes: Uint8Array): boolean;
+
 export function get_version(): string;
 export function get_supported_formats(): string[];
 export function benchmark_filters(bytes: Uint8Array, iterations: number): string;
