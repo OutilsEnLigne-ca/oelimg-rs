@@ -1,6 +1,6 @@
 [package]
 name = "oelimg-rs"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 authors = ["OutilsEnLigne.ca"]
 description = "Librairie d'édition d'images extensive pour WASM"
@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
-image = { version = "0.24", default-features = false, features = ["png", "jpeg", "webp"] }
+image = { version = "0.24", default-features = false, features = ["png", "jpeg", "webp", "ico"] }
 fast_image_resize = "3.0"
 # Note: j'ai de la misere avec photon-rs, j'utilises les filters de la crate image a place
 # photon-rs = { version = "0.3", default-features = false }

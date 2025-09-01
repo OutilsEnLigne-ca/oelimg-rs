@@ -76,6 +76,7 @@ export enum ImageFormat {
   PNG = "png",
   JPEG = "jpeg",
   WebP = "webp",
+  ICO = "ico",
   SVG = "svg"
 }
 
@@ -105,6 +106,7 @@ export class WasmImageProcessor {
   to_png_bytes(): Uint8Array;
   to_jpeg_bytes(quality: number): Uint8Array;
   to_webp_bytes(): Uint8Array;
+  to_ico_bytes(): Uint8Array;
   
   // Color adjustments
   adjust_hsl(hue: number, saturation: number, lightness: number): void;
@@ -158,6 +160,10 @@ export function convert_svg_to_webp(
   backgroundColor?: number[]
 ): Uint8Array;
 export function is_svg_format(bytes: Uint8Array): boolean;
+
+// ICO utility functions
+export function convert_to_ico(bytes: Uint8Array): Uint8Array;
+export function create_favicon(bytes: Uint8Array): Uint8Array;
 
 export function get_version(): string;
 export function get_supported_formats(): string[];
