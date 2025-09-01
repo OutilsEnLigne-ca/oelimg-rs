@@ -39,6 +39,12 @@ new WasmImageProcessor(width: number, height: number, data: Uint8Array)
 #### Static Methods
 ```javascript
 WasmImageProcessor.from_bytes(bytes: Uint8Array): WasmImageProcessor
+WasmImageProcessor.from_svg_bytes(
+  bytes: Uint8Array, 
+  width?: number, 
+  height?: number, 
+  backgroundColor?: number[]
+): WasmImageProcessor
 ```
 
 #### Properties
@@ -303,6 +309,28 @@ Apply Instagram-style filter presets.
 - `"lark"` - Bright and vibrant
 - `"reyes"` - Vintage film look
 
+## 🖼️ SVG Processing Functions
+
+### `convert_svg_to_png(svgBytes: Uint8Array, width?: number, height?: number, backgroundColor?: number[]): Uint8Array`
+Convert SVG to PNG format with optional size and background.
+
+**Parameters:**
+- `svgBytes: Uint8Array` - SVG file content as bytes
+- `width?: number` - Output width (auto-calculated if not provided)
+- `height?: number` - Output height (auto-calculated if not provided)
+- `backgroundColor?: number[]` - RGBA background color [r,g,b,a] (transparent by default)
+
+### `convert_svg_to_webp(svgBytes: Uint8Array, width?: number, height?: number, backgroundColor?: number[]): Uint8Array`
+Convert SVG to WebP format with optional size and background.
+
+**Parameters:**
+- Same as `convert_svg_to_png()`
+
+### `is_svg_format(bytes: Uint8Array): boolean`
+Check if the provided bytes contain SVG content.
+
+**Returns:** `true` if the bytes represent an SVG file, `false` otherwise.
+
 ### `get_version(): string`
 Get library version string.
 
@@ -490,6 +518,102 @@ async function processBatch(imageFiles, operations) {
   
   return results;
 }
+```
+
+### SVG Processing Example
+```javascript
+import init, { 
+  WasmImageProcessor, 
+  convert_svg_to_webp, 
+  convert_svg_to_png, 
+  is_svg_format 
+} from 'oelimg-rs';
+
+await init();
+
+// Handle SVG upload and conversion
+app.post('/api/svg/convert', express.raw({ type: 'image/svg+xml', limit: '5mb' }), (req, res) => {
+  try {
+    const svgBytes = new Uint8Array(req.body);
+    
+    // Verify it's actually SVG
+    if (!is_svg_format(svgBytes)) {
+      return res.status(400).json({ error: 'Invalid SVG format' });
+    }
+    
+    const { format = 'webp', width, height, background } = req.query;
+    
+    // Parse background color if provided (e.g., "255,255,255,255" for white)
+    const backgroundColor = background 
+      ? background.split(',').map(Number)
+      : undefined;
+    
+    let resultBytes;
+    let contentType;
+    
+    if (format === 'webp') {
+      resultBytes = convert_svg_to_webp(
+        svgBytes, 
+        width ? Number(width) : undefined,
+        height ? Number(height) : undefined,
+        backgroundColor
+      );
+      contentType = 'image/webp';
+    } else {
+      resultBytes = convert_svg_to_png(
+        svgBytes,
+        width ? Number(width) : undefined,
+        height ? Number(height) : undefined,
+        backgroundColor
+      );
+      contentType = 'image/png';
+    }
+    
+    res.setHeader('Content-Type', contentType);
+    res.send(Buffer.from(resultBytes));
+    
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Advanced SVG processing with filters
+app.post('/api/svg/process', express.raw({ type: 'image/svg+xml', limit: '5mb' }), (req, res) => {
+  try {
+    const svgBytes = new Uint8Array(req.body);
+    const { width = 800, height = 600, filters = [] } = req.body;
+    
+    // Convert SVG to processor with specific size
+    const processor = WasmImageProcessor.from_svg_bytes(
+      svgBytes, 
+      Number(width), 
+      Number(height),
+      [255, 255, 255, 255] // White background
+    );
+    
+    // Apply filters to the rendered SVG
+    for (const filter of filters) {
+      switch (filter.type) {
+        case 'blur':
+          processor.gaussian_blur(filter.amount || 2.0);
+          break;
+        case 'vintage':
+          processor.vintage(1.2, 0.3, 0.2, 0.15);
+          break;
+        case 'brightness':
+          processor.adjust_brightness_contrast(filter.brightness || 0.1, 1.0);
+          break;
+      }
+    }
+    
+    const resultBytes = processor.to_webp_bytes();
+    res.setHeader('Content-Type', 'image/webp');
+    res.send(Buffer.from(resultBytes));
+    
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 ```
 
 ## 🎯 Performance Tips
