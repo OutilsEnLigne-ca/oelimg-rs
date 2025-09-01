@@ -134,6 +134,12 @@ impl WasmImageProcessor {
         utils::image_to_bytes(&image, ImageFormat::WebP)
     }
 
+    #[wasm_bindgen]
+    pub fn to_ico_bytes(&self) -> Result<Vec<u8>, JsValue> {
+        let image = self.processor.to_image_buffer();
+        utils::image_to_bytes(&image, ImageFormat::Ico)
+    }
+
     /// Adjust hue, saturation, and lightness values
     /// 
     /// # Parameters
@@ -339,6 +345,44 @@ pub fn is_svg_format(bytes: &[u8]) -> bool {
     crate::utils::svg::is_svg_bytes(bytes)
 }
 
+/// Convert any image format to ICO format
+#[wasm_bindgen]
+pub fn convert_to_ico(bytes: &[u8]) -> Result<Vec<u8>, JsValue> {
+    let processor = WasmImageProcessor::from_bytes(bytes)?;
+    processor.to_ico_bytes()
+}
+
+/// Create a favicon from image bytes, optimized for web usage
+/// 
+/// Generates a 32x32 ICO file which is the standard favicon size
+/// Applies optimization for small icon display (slight sharpening)
+/// 
+/// # Parameters
+/// - `bytes: &[u8]` - Source image data (any supported format)
+/// 
+/// # Returns
+/// ICO file bytes ready for web deployment as favicon.ico
+/// 
+/// # Example
+/// ```javascript
+/// const faviconBytes = create_favicon(imageBytes);
+/// // Save as favicon.ico or serve directly
+/// ```
+#[wasm_bindgen]
+pub fn create_favicon(bytes: &[u8]) -> Result<Vec<u8>, JsValue> {
+    let mut processor = WasmImageProcessor::from_bytes(bytes)?;
+    
+    // Resize to standard favicon size (32x32)
+    // Use Lanczos3 for best quality when downscaling
+    processor.resize(32, 32, Some(transform::ResizeAlgorithm::Lanczos3))?;
+    
+    // Apply slight sharpening to compensate for small size display
+    processor.sharpen(0.3)?;
+    
+    // Convert to ICO format
+    processor.to_ico_bytes()
+}
+
 #[wasm_bindgen]
 pub fn create_thumbnail(
     bytes: &[u8],
@@ -420,6 +464,7 @@ pub fn get_supported_formats() -> Vec<String> {
         "PNG".to_string(),
         "JPEG".to_string(), 
         "WebP".to_string(),
+        "ICO".to_string(),
         "SVG".to_string(),
     ]
 }

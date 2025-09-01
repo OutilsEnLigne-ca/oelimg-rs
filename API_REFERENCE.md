@@ -57,6 +57,7 @@ WasmImageProcessor.from_svg_bytes(
 to_png_bytes(): Uint8Array
 to_jpeg_bytes(quality: number): Uint8Array  // quality: 0-100
 to_webp_bytes(): Uint8Array
+to_ico_bytes(): Uint8Array
 ```
 
 ## 🎨 Color Adjustment Methods
@@ -330,6 +331,30 @@ Convert SVG to WebP format with optional size and background.
 Check if the provided bytes contain SVG content.
 
 **Returns:** `true` if the bytes represent an SVG file, `false` otherwise.
+
+## 🏷️ ICO Processing Functions
+
+### `convert_to_ico(bytes: Uint8Array): Uint8Array`
+Convert any supported image format to ICO format.
+
+**Parameters:**
+- `bytes: Uint8Array` - Source image data (PNG, JPEG, WebP, SVG, etc.)
+
+**Returns:** ICO file bytes
+
+### `create_favicon(bytes: Uint8Array): Uint8Array`
+Create an optimized favicon from any image format.
+
+**Features:**
+- Automatically resizes to 32x32 pixels (standard favicon size)
+- Applies slight sharpening for better small-size clarity
+- Uses high-quality Lanczos3 resampling
+- Outputs ready-to-deploy favicon.ico file
+
+**Parameters:**
+- `bytes: Uint8Array` - Source image data (any supported format)
+
+**Returns:** Optimized ICO file bytes ready for web deployment
 
 ### `get_version(): string`
 Get library version string.
@@ -609,6 +634,101 @@ app.post('/api/svg/process', express.raw({ type: 'image/svg+xml', limit: '5mb' }
     const resultBytes = processor.to_webp_bytes();
     res.setHeader('Content-Type', 'image/webp');
     res.send(Buffer.from(resultBytes));
+    
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+```
+
+### Favicon Generation Example
+```javascript
+import init, { 
+  create_favicon, 
+  convert_to_ico,
+  WasmImageProcessor 
+} from 'oelimg-rs';
+
+await init();
+
+// Simple favicon generation endpoint
+app.post('/api/favicon', express.raw({ type: 'image/*', limit: '5mb' }), (req, res) => {
+  try {
+    const imageBytes = new Uint8Array(req.body);
+    
+    // Quick favicon generation - one function call
+    const faviconBytes = create_favicon(imageBytes);
+    
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.setHeader('Content-Disposition', 'attachment; filename="favicon.ico"');
+    res.send(Buffer.from(faviconBytes));
+    
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Advanced icon generation with custom sizing
+app.post('/api/icon/generate', express.raw({ type: 'image/*', limit: '5mb' }), (req, res) => {
+  try {
+    const imageBytes = new Uint8Array(req.body);
+    const { size = 32, sharpen = true } = req.query;
+    
+    // Create processor for custom icon generation
+    const processor = WasmImageProcessor.from_bytes(imageBytes);
+    
+    // Resize to desired size
+    processor.resize_fit(Number(size), Number(size));
+    
+    // Optional sharpening for small icons
+    if (sharpen === 'true') {
+      processor.sharpen(0.4);
+    }
+    
+    // Convert to ICO format
+    const iconBytes = processor.to_ico_bytes();
+    
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.send(Buffer.from(iconBytes));
+    
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Batch icon generation for different platforms
+app.post('/api/icon/batch', express.raw({ type: 'image/*', limit: '5mb' }), async (req, res) => {
+  try {
+    const imageBytes = new Uint8Array(req.body);
+    
+    const iconSizes = [
+      { name: 'favicon', size: 32 },
+      { name: 'windows-small', size: 16 },
+      { name: 'windows-medium', size: 48 },
+      { name: 'windows-large', size: 256 }
+    ];
+    
+    const results = [];
+    
+    for (const { name, size } of iconSizes) {
+      const processor = WasmImageProcessor.from_bytes(imageBytes);
+      processor.resize(size, size);
+      
+      // Apply size-appropriate sharpening
+      const sharpenAmount = size <= 32 ? 0.5 : 0.2;
+      processor.sharpen(sharpenAmount);
+      
+      const iconBytes = processor.to_ico_bytes();
+      
+      results.push({
+        name,
+        size,
+        data: Array.from(iconBytes), // Convert to array for JSON
+        mimeType: 'image/x-icon'
+      });
+    }
+    
+    res.json({ icons: results });
     
   } catch (error) {
     res.status(400).json({ error: error.message });

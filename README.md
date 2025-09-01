@@ -51,11 +51,19 @@ Développé par l’équipe d’[OutilsEnLigne.ca](https://outilsenligne.ca) pou
 - **Filtres sur SVG** – Application de tous les filtres après rendu vectoriel
 - **Détection automatique** – Reconnaissance automatique du format SVG
 
+### 🏷️ Support ICO
+
+- **Génération de favicons** – Création automatique de favicon.ico optimisés
+- **Conversion universelle** – Conversion depuis tout format vers ICO
+- **Optimisation intelligente** – Redimensionnement et netteté adaptés aux icônes
+- **Multi-plateformes** – Génération d'icônes pour Windows, web et applications
+- **Tailles standards** – Support des tailles d'icônes courantes (16x16 à 256x256)
+
 ### 🎯 Fonctionnalités intelligentes
 
 - **Filtres style Instagram** – Combinaisons de filtres populaires préconfigurées
 - **Génération de miniatures** – Création intelligente de vignettes avec options de ratio
-- **Prise en charge des formats** – Entrée/sortie PNG, JPEG, WebP, SVG
+- **Prise en charge des formats** – Entrée/sortie PNG, JPEG, WebP, ICO, SVG
 - **Efficacité mémoire** – Optimisé pour les grandes images
 - **Gestion des erreurs** – Gestion complète avec messages explicites
 
@@ -158,6 +166,40 @@ async function processSVG() {
   const img = document.createElement('img');
   img.src = url;
   document.body.appendChild(img);
+}
+```
+
+### Génération de Favicon
+
+```javascript
+import init, { create_favicon, convert_to_ico } from 'oelimg-rs';
+
+async function generateFavicon() {
+  await init();
+  
+  // Charger une image source
+  const fileInput = document.getElementById('imageInput');
+  const file = fileInput.files[0];
+  const arrayBuffer = await file.arrayBuffer();
+  const imageBytes = new Uint8Array(arrayBuffer);
+  
+  // Génération automatique de favicon optimisé
+  const faviconBytes = create_favicon(imageBytes);
+  
+  // Créer un blob téléchargeable
+  const blob = new Blob([faviconBytes], { type: 'image/x-icon' });
+  const url = URL.createObjectURL(blob);
+  
+  // Créer lien de téléchargement
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'favicon.ico';
+  link.textContent = 'Télécharger favicon.ico';
+  document.body.appendChild(link);
+  
+  // Ou conversion simple vers ICO
+  const icoBytes = convert_to_ico(imageBytes);
+  console.log('Fichier ICO généré:', icoBytes.length, 'bytes');
 }
 ```
 

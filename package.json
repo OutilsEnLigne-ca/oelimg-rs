@@ -1,6 +1,6 @@
 {
   "name": "oelimg-rs",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Package d'édition d'images pour outilsenligne.ca, en Rust avec WASM.",
   "keywords": [
     "image-processing",
