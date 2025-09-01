@@ -43,11 +43,19 @@ Développé par l’équipe d’[OutilsEnLigne.ca](https://outilsenligne.ca) pou
 - **Exposition** – Contrôle professionnel de l’exposition avec récupération des hautes lumières/ombres
 - **Ombres/hautes lumières** – Récupération sélective des ombres et hautes lumières
 
+### 🖼️ Support SVG
+
+- **Rendu SVG vers raster** – Conversion SVG vers PNG/WebP avec qualité vectorielle
+- **Dimensions configurables** – Contrôle précis de la taille de sortie
+- **Arrière-plan personnalisable** – Transparence ou couleur de fond au choix
+- **Filtres sur SVG** – Application de tous les filtres après rendu vectoriel
+- **Détection automatique** – Reconnaissance automatique du format SVG
+
 ### 🎯 Fonctionnalités intelligentes
 
 - **Filtres style Instagram** – Combinaisons de filtres populaires préconfigurées
 - **Génération de miniatures** – Création intelligente de vignettes avec options de ratio
-- **Prise en charge des formats** – Entrée/sortie PNG, JPEG, WebP
+- **Prise en charge des formats** – Entrée/sortie PNG, JPEG, WebP, SVG
 - **Efficacité mémoire** – Optimisé pour les grandes images
 - **Gestion des erreurs** – Gestion complète avec messages explicites
 
@@ -99,6 +107,59 @@ async function processImage() {
 }
 ```
 
+### Traitement SVG
+
+```javascript
+import init, { 
+  WasmImageProcessor, 
+  convert_svg_to_webp, 
+  is_svg_format 
+} from 'oelimg-rs';
+
+async function processSVG() {
+  await init();
+  
+  // Charger un fichier SVG
+  const fileInput = document.getElementById('svgInput');
+  const file = fileInput.files[0];
+  const arrayBuffer = await file.arrayBuffer();
+  const svgBytes = new Uint8Array(arrayBuffer);
+  
+  // Vérifier que c'est bien un SVG
+  if (!is_svg_format(svgBytes)) {
+    console.error('Le fichier n\'est pas un SVG valide');
+    return;
+  }
+  
+  // Conversion directe vers WebP
+  const webpBytes = convert_svg_to_webp(
+    svgBytes, 
+    800,           // largeur
+    600,           // hauteur
+    [255, 255, 255, 255] // arrière-plan blanc
+  );
+  
+  // Ou création d'un processeur pour appliquer des filtres
+  const processor = WasmImageProcessor.from_svg_bytes(
+    svgBytes, 
+    1024,          // largeur de rendu
+    768            // hauteur de rendu
+  );
+  
+  // Appliquer des effets sur le SVG rendu
+  processor.vintage(1.2, 0.3, 0.15, 0.1);
+  processor.gaussian_blur(0.5);
+  
+  const resultBytes = processor.to_webp_bytes();
+  
+  // Afficher le résultat
+  const blob = new Blob([resultBytes], { type: 'image/webp' });
+  const url = URL.createObjectURL(blob);
+  const img = document.createElement('img');
+  img.src = url;
+  document.body.appendChild(img);
+}
+```
 
 ### Filtres style Instagram
 
